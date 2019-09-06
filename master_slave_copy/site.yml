@@ -1,0 +1,14 @@
+---
+- name: deploy master point
+  hosts: masters
+  gather_facts: True
+  remote_user: root
+  roles:
+    - masters
+
+- name: deploy slaves point
+  hosts: slaves
+  gather_facts: True
+  remote_user: root
+  roles:
+    - slaves

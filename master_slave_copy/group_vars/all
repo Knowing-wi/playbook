@@ -1,0 +1,7 @@
+---
+mysql_user_name: ansible
+mysql_user_password: "(Ansible123..)"
+mysql_replication_name: replication
+mysql_replication_password: "Replication123.."
+m_ip: 192.168.30.22
+s_ip: 192.168.30.23

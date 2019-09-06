@@ -1,0 +1,47 @@
+---
+- name: transfer install source to remote machine.
+  template:
+    src: mysqlrepo.j2
+    dest: /etc/yum.repos.d/mysql.repo
+
+- name: deploy mysqld service.
+  yum:
+    name: ['MySQL-python', 'mysql-community-server']
+    state: latest
+
+- name: transfer configure file to master machine.
+  template:
+    src: mycnf.j2
+    dest: /etc/my.cnf
+  notify:
+    - start mysqld service
+
+- name: transfer scripts to master machine.
+  template:
+    src: chp.j2
+    dest: /opt/chp.sh
+
+- name: change mysqld service init password.
+  shell: bash /opt/chp.sh
+
+- name: Get master Status
+  mysql_replication:
+    login_host: "{{ m_ip }}"
+    login_user: "{{ mysql_master_user }}"
+    login_password: "{{ mysql_master_password }}"
+    mode: getmaster
+  register: master
+
+- name: Configure replication on the slave.
+  mysql_replication:
+    mode: changemaster
+    master_host: "{{ m_ip }}"
+    master_user: "{{ mysql_replication_name }}"
+    master_password: "{{ mysql_replication_password }}"
+    master_log_file: "{{ master.File }}"
+    master_log_pos: "{{ master.Position }}"
+
+- name: Start slave
+  mysql_replication:
+    mode: startslave
+

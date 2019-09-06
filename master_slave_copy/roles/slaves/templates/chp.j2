@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+#
+# usage: init mysql root password.
+
+systemctl start mysqld
+
+sleep 5
+
+initpsd=$(grep 'temporary password' /var/log/mysqld.log | awk '{ print $NF }')
+userpsd="{{ mysql_user_password }}"
+username='{{ mysql_user_name }}'
+sip="{{ s_ip }}"
+mysql --connect-expired-password -uroot -p"${initpsd}" -e "alter user root@${sip} identified by '${userpsd}';"
+mysql -uroot -p"${userpsd}" -e "grant all privileges on *.* to '${username}'@'%' identified by '${userpsd}';"
